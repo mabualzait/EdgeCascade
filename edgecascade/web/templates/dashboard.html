@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EdgeCascade — Observability & Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.2);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .logo-group { display: flex; align-items: center; gap: 14px; }
+    .badge-edge {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+    h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+    .subtitle { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .kpi-card:hover { transform: translateY(-2px); border-color: #374151; }
+    .kpi-label { font-size: 13px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-val { font-size: 32px; font-weight: 700; font-family: var(--font-mono); margin: 8px 0 4px; }
+    .kpi-sub { font-size: 12px; color: var(--text-muted); }
+    .val-savings { color: #34d399; }
+    .val-privacy { color: #60a5fa; }
+    .val-fallbacks { color: #fbbf24; }
+    .val-requests { color: #c084fc; }
+
+    /* Layout Sections */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 1024px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .card-title {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Tier progress bars */
+    .tier-row { margin-bottom: 18px; }
+    .tier-header { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+    .tier-tag { font-weight: 600; }
+    .tier-bar-bg { height: 10px; background: #1f2937; border-radius: 9999px; overflow: hidden; }
+    .tier-bar-fill { height: 100%; border-radius: 9999px; transition: width 0.5s ease; }
+    .bg-t1 { background: linear-gradient(90deg, #10b981, #059669); }
+    .bg-t2 { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .bg-t3 { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
+
+    /* Latency Table */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--card-border); }
+    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: var(--font-mono); font-size: 13px; }
+
+    /* Interactive Test Playground */
+    .playground textarea {
+      width: 100%;
+      height: 90px;
+      background: #0d121d;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      padding: 12px;
+      resize: vertical;
+      margin-bottom: 12px;
+      outline: none;
+    }
+    .playground textarea:focus { border-color: var(--accent); }
+    .btn-test {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease;
+    }
+    .btn-test:hover { background: #2563eb; }
+    .test-result {
+      margin-top: 16px;
+      background: #0b0f19;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      white-space: pre-wrap;
+      max-height: 250px;
+      overflow-y: auto;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-group">
+        <span class="badge-edge">EDGECASCADE</span>
+        <div>
+          <h1>Hybrid Inference & Fallback Engine</h1>
+          <div class="subtitle">Dynamic SLM/Cloud Routing • Zero-Leakage Privacy Gate • Cost Optimizer</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="status-pill"><span class="status-dot"></span> Systems Operational</div>
+      </div>
+    </header>
+
+    <!-- Top KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Cost Savings (USD)</div>
+        <div class="kpi-val val-savings" id="kpi-cost-saved">$0.0000</div>
+        <div class="kpi-sub">vs. frontier cloud models</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Privacy Isolations</div>
+        <div class="kpi-val val-privacy" id="kpi-privacy-count">0</div>
+        <div class="kpi-sub">Sensitive queries kept 100% local</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Fallback Triggers</div>
+        <div class="kpi-val val-fallbacks" id="kpi-fallbacks">0</div>
+        <div class="kpi-sub">Upward cascades triggered</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Inferences</div>
+        <div class="kpi-val val-requests" id="kpi-requests">0</div>
+        <div class="kpi-sub" id="kpi-uptime">Uptime: 0s</div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="dashboard-grid">
+      <!-- Left Column: Tier Distribution & Latencies -->
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span>Inference Tier Distribution</span>
+            <span style="font-size: 13px; color: var(--text-muted);" id="token-summary">Prompt: 0 | Comp: 0</span>
+          </div>
+
+          <div class="tier-row">
+            <div class="tier-header">
+              <span class="tier-tag" style="color: #34d399;">Tier 1: Edge Local SLM (Ollama / vLLM)</span>
+              <span id="tier-1-pct">0% (0)</span>
+            </div>
+            <div class="tier-bar-bg"><div id="tier-1-bar" class="tier-bar-fill bg-t1" style="width: 0%"></div></div>
+          </div>
+
+          <div class="tier-row">
+            <div class="tier-header">
+              <span class="tier-tag" style="color: #60a5fa;">Tier 2: Mid-tier Reasoner (Llama 8B / Economical)</span>
+              <span id="tier-2-pct">0% (0)</span>
+            </div>
+            <div class="tier-bar-bg"><div id="tier-2-bar" class="tier-bar-fill bg-t2" style="width: 0%"></div></div>
+          </div>
+
+          <div class="tier-row">
+            <div class="tier-header">
+              <span class="tier-tag" style="color: #c084fc;">Tier 3: Frontier Cloud (Claude 3.5 Sonnet / GPT-4o)</span>
+              <span id="tier-3-pct">0% (0)</span>
+            </div>
+            <div class="tier-bar-bg"><div id="tier-3-bar" class="tier-bar-fill bg-t3" style="width: 0%"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Latency Percentiles (p50 / p95 / p99)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>p50 Latency</th>
+                <th>p95 Latency</th>
+                <th>p99 Latency</th>
+              </tr>
+            </thead>
+            <tbody id="latency-table-body">
+              <tr>
+                <td style="color: #34d399;">Tier 1 (Edge SLM)</td>
+                <td id="lat-t1-p50">0 ms</td>
+                <td id="lat-t1-p95">0 ms</td>
+                <td id="lat-t1-p99">0 ms</td>
+              </tr>
+              <tr>
+                <td style="color: #60a5fa;">Tier 2 (Mid-tier)</td>
+                <td id="lat-t2-p50">0 ms</td>
+                <td id="lat-t2-p95">0 ms</td>
+                <td id="lat-t2-p99">0 ms</td>
+              </tr>
+              <tr>
+                <td style="color: #c084fc;">Tier 3 (Frontier)</td>
+                <td id="lat-t3-p50">0 ms</td>
+                <td id="lat-t3-p95">0 ms</td>
+                <td id="lat-t3-p99">0 ms</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Test Console -->
+      <div>
+        <div class="card playground">
+          <div class="card-title">Live Routing Tester</div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            Test EdgeCascade's real-time PII containment and semantic tiering:
+          </p>
+          <textarea id="test-prompt" placeholder="Try typing:
+- 'Summarize this in one sentence' (Tier 1)
+- 'My AWS key is AKIA1234567890ABCDEF' (Privacy Guard -> Local)
+- 'Design a distributed consensus protocol' (Tier 3)"></textarea>
+          <button class="btn-test" id="btn-submit-test">Run Routing Test</button>
+
+          <div id="test-output" class="test-result"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Quick Endpoints</div>
+          <div style="font-family: var(--font-mono); font-size: 12px; display: flex; flex-direction: column; gap: 8px;">
+            <div><span style="color: #10b981;">POST</span> /v1/chat/completions</div>
+            <div><span style="color: #3b82f6;">GET</span>  /v1/models</div>
+            <div><span style="color: #8b5cf6;">GET</span>  /metrics (Prometheus)</div>
+            <div><span style="color: #f59e0b;">GET</span>  /api/stats (JSON)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function fetchStats() {
+      try {
+        const resp = await fetch('/api/stats');
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        // Update KPIs
+        document.getElementById('kpi-cost-saved').innerText = '$' + Number(data.cost_saved_usd).toFixed(4);
+        document.getElementById('kpi-privacy-count').innerText = data.privacy_contained_count;
+        document.getElementById('kpi-fallbacks').innerText = data.fallback_trigger_count;
+        document.getElementById('kpi-requests').innerText = data.total_requests;
+        document.getElementById('kpi-uptime').innerText = `Uptime: ${data.uptime_seconds}s`;
+
+        // Update Token Summary
+        if (data.total_tokens) {
+          document.getElementById('token-summary').innerText =
+            `Prompt: ${data.total_tokens.prompt.toLocaleString()} | Comp: ${data.total_tokens.completion.toLocaleString()}`;
+        }
+
+        // Update Bars
+        const dist = data.tier_distribution || {};
+        const counts = data.tier_counts || {};
+
+        const t1Pct = dist.tier_1 || 0;
+        const t2Pct = dist.tier_2 || 0;
+        const t3Pct = dist.tier_3 || 0;
+
+        document.getElementById('tier-1-pct').innerText = `${t1Pct}% (${counts.tier_1 || 0})`;
+        document.getElementById('tier-1-bar').style.width = `${t1Pct}%`;
+
+        document.getElementById('tier-2-pct').innerText = `${t2Pct}% (${counts.tier_2 || 0})`;
+        document.getElementById('tier-2-bar').style.width = `${t2Pct}%`;
+
+        document.getElementById('tier-3-pct').innerText = `${t3Pct}% (${counts.tier_3 || 0})`;
+        document.getElementById('tier-3-bar').style.width = `${t3Pct}%`;
+
+        // Update Latencies
+        const lat = data.latency_percentiles_ms || {};
+        if (lat.tier_1) {
+          document.getElementById('lat-t1-p50').innerText = `${lat.tier_1.p50} ms`;
+          document.getElementById('lat-t1-p95').innerText = `${lat.tier_1.p95} ms`;
+          document.getElementById('lat-t1-p99').innerText = `${lat.tier_1.p99} ms`;
+        }
+        if (lat.tier_2) {
+          document.getElementById('lat-t2-p50').innerText = `${lat.tier_2.p50} ms`;
+          document.getElementById('lat-t2-p95').innerText = `${lat.tier_2.p95} ms`;
+          document.getElementById('lat-t2-p99').innerText = `${lat.tier_2.p99} ms`;
+        }
+        if (lat.tier_3) {
+          document.getElementById('lat-t3-p50').innerText = `${lat.tier_3.p50} ms`;
+          document.getElementById('lat-t3-p95').innerText = `${lat.tier_3.p95} ms`;
+          document.getElementById('lat-t3-p99').innerText = `${lat.tier_3.p99} ms`;
+        }
+
+      } catch (e) {
+        console.error("Error fetching stats:", e);
+      }
+    }
+
+    // Interactive tester button
+    document.getElementById('btn-submit-test').addEventListener('click', async () => {
+      const prompt = document.getElementById('test-prompt').value.trim();
+      if (!prompt) return;
+
+      const outputEl = document.getElementById('test-output');
+      outputEl.style.display = 'block';
+      outputEl.innerText = 'Routing request...';
+
+      try {
+        const res = await fetch('/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+
+        const headers = {
+          tier: res.headers.get('x-edgecascade-tier'),
+          provider: res.headers.get('x-edgecascade-provider'),
+          privacy_contained: res.headers.get('x-edgecascade-privacy-contained'),
+          fallback: res.headers.get('x-edgecascade-fallback'),
+          routing_time_ms: res.headers.get('x-edgecascade-routing-time-ms'),
+          cost_saved_usd: res.headers.get('x-edgecascade-cost-saved-usd'),
+        };
+
+        const json = await res.json();
+        const content = json.choices?.[0]?.message?.content || JSON.stringify(json);
+
+        outputEl.innerText =
+          `[Routing Metadata]\n` +
+          `• Tier: ${headers.tier}\n` +
+          `• Provider: ${headers.provider}\n` +
+          `• Privacy Contained: ${headers.privacy_contained}\n` +
+          `• Fallback Triggered: ${headers.fallback}\n` +
+          `• Routing Evaluation: ${headers.routing_time_ms} ms\n` +
+          `• Cost Saved: $${headers.cost_saved_usd}\n\n` +
+          `[Model Output]:\n${content}`;
+
+        fetchStats();
+      } catch (err) {
+        outputEl.innerText = `Error: ${err.message}`;
+      }
+    });
+
+    setInterval(fetchStats, 2000);
+    fetchStats();
+  </script>
+</body>
+</html>

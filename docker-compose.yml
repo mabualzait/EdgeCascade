@@ -1,0 +1,36 @@
+services:
+  edgecascade:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: edgecascade-router
+    restart: unless-stopped
+    ports:
+      - "${EDGECASCADE_PORT:-8090}:8080"
+    environment:
+      - EDGECASCADE_CONFIG=config/config.yaml
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./config:/app/config:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: edgecascade-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9095}:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      edgecascade:
+        condition: service_healthy
