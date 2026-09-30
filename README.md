@@ -1,14 +1,29 @@
 # EdgeCascade ⚡️
 
+[![Author](https://img.shields.io/badge/Author-Malik%20Abualzait-blue?style=flat&logo=github)](https://github.com/mabualzait)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success?style=flat&logo=githubpages)](https://mabualzait.github.io/EdgeCascade/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
 [![Docker Ready](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
 [![OpenAI Compatible](https://img.shields.io/badge/OpenAI-Compatible_API-412991?logo=openai&logoColor=white)](https://platform.openai.com/docs/api-reference)
 [![CI](https://img.shields.io/badge/CI-Passing-success)](.github/workflows/ci.yml)
 
+> **Architected & Engineered by [Malik Abualzait](https://github.com/mabualzait)**  
+> *Lead Infrastructure Engineer & AI Systems Architect*
+
 **EdgeCascade** is an open-source, production-ready **Semantic Fallback Router & Hybrid Inference Engine**. It dynamically intercepts and routes incoming inference requests between local Small Language Models (SLMs via Ollama, vLLM, llama.cpp) and frontier cloud models (OpenAI GPT-4o, Anthropic Claude 3.5 Sonnet, Google Gemini), optimizing for **strict privacy**, **token cost savings**, and **sub-50ms routing overhead**.
 
 Drop EdgeCascade into any existing workflow (Cursor, VS Code extensions, LangChain, Open WebUI, internal microservices) simply by updating `base_url` to point to EdgeCascade.
+
+🌐 **Try the Live Interactive Simulator on GitHub Pages:** [https://mabualzait.github.io/EdgeCascade/](https://mabualzait.github.io/EdgeCascade/)
+
+---
+
+## Real-Time Observability & Analytics Dashboard
+
+EdgeCascade includes a built-in real-time dark-mode web dashboard (`/dashboard`) tracking token cost savings, privacy containment firewall hits, and tier latency percentiles (p50, p95, p99):
+
+![EdgeCascade Real-time Observability Dashboard](docs/assets/dashboard-preview.png)
 
 ---
 
@@ -322,3 +337,15 @@ Contributions, bug reports, and optimizations are welcome! Please check out [CON
 ## License
 
 EdgeCascade is licensed under the [Apache License 2.0](LICENSE).
+
+---
+
+## Author & Maintainer
+
+**Malik Abualzait**  
+*AI Systems Architect & Lead Infrastructure Engineer*  
+- **GitHub:** [@mabualzait](https://github.com/mabualzait)  
+- **Email:** [m.abualzait@gmail.com](mailto:m.abualzait@gmail.com)  
+- **Website:** [https://mabualzait.com](https://mabualzait.com)  
+
+*Keywords for discovery & research:* Malik Abualzait, EdgeCascade, HybridEdge, Small Language Models (SLMs), Edge AI Inference, Cost Optimization, LLM Fallback Routing, Ollama vLLM Orchestration, Privacy-Preserving AI.

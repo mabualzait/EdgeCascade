@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EdgeCascade — Semantic Fallback Router & Hybrid Inference Engine | By Malik Abualzait</title>
+  
+  <!-- SEO Metadata -->
+  <meta name="author" content="Malik Abualzait" />
+  <meta name="description" content="EdgeCascade is an open-source, production-ready Semantic Fallback Router & Hybrid Inference Engine created by Malik Abualzait. Dynamically routes between local SLMs (Ollama/vLLM) and frontier cloud models." />
+  <meta name="keywords" content="Malik Abualzait, EdgeCascade, HybridEdge, LLM Router, Fallback Engine, SLM, Small Language Models, Ollama, vLLM, OpenAI, Claude 3.5 Sonnet, Local AI, Privacy Firewall, AI Systems Architect, Token Cost Optimization" />
+  
+  <!-- OpenGraph / Social Cards -->
+  <meta property="og:title" content="EdgeCascade — Hybrid Inference Engine by Malik Abualzait" />
+  <meta property="og:description" content="Sub-10ms semantic routing, zero-leakage privacy firewall, and real-time token cost optimizer for hybrid edge-cloud AI." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mabualzait.github.io/EdgeCascade/" />
+  <meta property="og:image" content="assets/dashboard-preview.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="EdgeCascade by Malik Abualzait" />
+  <meta name="twitter:description" content="Production-ready Semantic Fallback Router & Hybrid Inference Engine for Edge and Cloud LLMs." />
+  <meta name="twitter:image" content="assets/dashboard-preview.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 0 20px 60px;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* Hero Navigation */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 40px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+    .brand-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+
+    .nav-links { display: flex; align-items: center; gap: 20px; }
+    .nav-link { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.15s; }
+    .nav-link:hover { color: #fff; }
+    .btn-github {
+      background: #1f2937;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid #374151;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+    .btn-github:hover { background: #374151; }
+
+    /* Hero Header */
+    .hero {
+      text-align: center;
+      padding: 40px 0 60px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .author-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 13px;
+      color: #60a5fa;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff 40%, #9ca3af 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .hero-actions { display: flex; justify-content: center; gap: 16px; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      transition: background 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      transition: border-color 0.15s;
+    }
+    .btn-secondary:hover { border-color: #4b5563; }
+
+    /* Screenshot Gallery */
+    .screenshot-section {
+      margin-bottom: 60px;
+    }
+    .screenshot-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .browser-bar {
+      background: #0f1523;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+    .address-bar {
+      background: #090d16;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 4px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      flex: 1;
+      max-width: 400px;
+    }
+    .screenshot-img {
+      width: 100%;
+      display: block;
+      height: auto;
+    }
+
+    /* Interactive Simulator */
+    .simulator-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 60px;
+    }
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .presets {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .btn-preset {
+      background: #1f2937;
+      border: 1px solid #374151;
+      color: var(--text);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: all 0.15s;
+    }
+    .btn-preset:hover { background: #374151; border-color: var(--accent); }
+    .sim-textarea {
+      width: 100%;
+      height: 100px;
+      background: #090d16;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      padding: 14px;
+      outline: none;
+      resize: vertical;
+      margin-bottom: 16px;
+    }
+    .sim-textarea:focus { border-color: var(--accent); }
+    .sim-result {
+      background: #090d16;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+    }
+    .sim-result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .sim-res-box {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .sim-res-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+    .sim-res-val { font-size: 18px; font-weight: 700; font-family: var(--font-mono); margin-top: 4px; }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 28px;
+    }
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+    .feature-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .feature-desc { color: var(--text-muted); font-size: 14px; }
+
+    /* Author Footer */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding-top: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .author-bio {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .author-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a href="#" class="brand">
+        <span class="brand-badge">EDGECASCADE</span>
+        <span class="brand-title">EdgeCascade</span>
+      </a>
+      <div class="nav-links">
+        <a href="#demo" class="nav-link">Interactive Demo</a>
+        <a href="#features" class="nav-link">Architecture</a>
+        <a href="https://github.com/mabualzait/EdgeCascade" class="btn-github" target="_blank" rel="noopener">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub Repo
+        </a>
+      </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="author-tag">
+        <span>Designed & Architected by</span>
+        <strong style="color: #fff;">Malik Abualzait</strong>
+      </div>
+      <h1>Semantic Fallback Router & Hybrid Inference Engine</h1>
+      <p>
+        Dynamically route LLM inference between local SLMs (via Ollama & vLLM) and frontier cloud models (OpenAI, Claude 3.5 Sonnet, Gemini). Sub-10ms routing overhead, zero-leakage privacy firewall, and real-time token cost savings.
+      </p>
+      <div class="hero-actions">
+        <a href="#demo" class="btn-primary">Try Live Simulator</a>
+        <a href="https://github.com/mabualzait/EdgeCascade" class="btn-secondary" target="_blank" rel="noopener">Explore Code on GitHub</a>
+      </div>
+    </header>
+
+    <!-- Real Dashboard Screenshot -->
+    <section class="screenshot-section">
+      <div class="screenshot-card">
+        <div class="browser-bar">
+          <div class="dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <div class="address-bar">http://localhost:8090/dashboard</div>
+        </div>
+        <img src="assets/dashboard-preview.png" alt="EdgeCascade Observability & Cost Savings Dashboard" class="screenshot-img" />
+      </div>
+    </section>
+
+    <!-- Interactive Simulator -->
+    <section class="simulator-section" id="demo">
+      <h2 class="section-title">Interactive Routing & Privacy Simulator</h2>
+      <p class="section-subtitle">
+        Test EdgeCascade's real-time PII containment and sub-10ms semantic classification algorithms directly in your browser:
+      </p>
+
+      <div class="presets">
+        <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Try Presets:</span>
+        <button class="btn-preset" onclick="setPreset('extract')">Simple JSON Extraction (Tier 1)</button>
+        <button class="btn-preset" onclick="setPreset('aws')">AWS Key Leak (Privacy Gate)</button>
+        <button class="btn-preset" onclick="setPreset('code')">FastAPI Function (Tier 2)</button>
+        <button class="btn-preset" onclick="setPreset('consensus')">Byzantine Fault Tolerance (Tier 3)</button>
+      </div>
+
+      <textarea id="sim-prompt" class="sim-textarea" placeholder="Type a prompt to test routing classification..."></textarea>
+      <button class="btn-primary" onclick="runSim()">Evaluate Routing</button>
+
+      <div id="sim-result" class="sim-result">
+        <div class="sim-result-grid">
+          <div class="sim-res-box">
+            <div class="sim-res-label">Assigned Tier</div>
+            <div class="sim-res-val" id="res-tier">-</div>
+          </div>
+          <div class="sim-res-box">
+            <div class="sim-res-label">Target Engine</div>
+            <div class="sim-res-val" id="res-engine">-</div>
+          </div>
+          <div class="sim-res-box">
+            <div class="sim-res-label">Privacy Isolation</div>
+            <div class="sim-res-val" id="res-privacy">-</div>
+          </div>
+          <div class="sim-res-box">
+            <div class="sim-res-label">Complexity Score</div>
+            <div class="sim-res-val" id="res-score">-</div>
+          </div>
+        </div>
+        <div id="res-explanation" style="font-family: var(--font-mono); font-size: 13px; color: #9ca3af;"></div>
+      </div>
+    </section>
+
+    <!-- Architecture Features -->
+    <section class="features-grid" id="features">
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3 class="feature-title">Zero-Leakage Privacy Firewall</h3>
+        <p class="feature-desc">
+          Deterministic regex and entropy checks block AWS keys, JWTs, private SSH keys, and SSNs. Sensitive queries are mathematically locked to local SLMs and never leaked to cloud APIs.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡️</div>
+        <h3 class="feature-title">Sub-10ms Semantic Scorer</h3>
+        <p class="feature-desc">
+          Combines structural entropy, reasoning keyword detectors, and normalized centroid archetype cosine similarity to classify queries with near-zero latency and no GPU overhead for the router.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h3 class="feature-title">Automated Fallback & Circuit Breakers</h3>
+        <p class="feature-desc">
+          Monitors hardware saturation, connection timeouts, and degenerate repetition loops. If local hardware saturates or SLMs stutter, EdgeCascade gracefully cascades upward.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔌</div>
+        <h3 class="feature-title">Drop-in OpenAI Compatibility</h3>
+        <p class="feature-desc">
+          Exposes standard <code style="color: #60a5fa;">/v1/chat/completions</code> with streaming SSE. Compatible with Cursor, Continue, Cline, Open WebUI, and standard OpenAI SDKs by changing <code style="color: #60a5fa;">base_url</code>.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3 class="feature-title">Cost Savings Analytics</h3>
+        <p class="feature-desc">
+          Tracks token savings against frontier cloud benchmark models (GPT-4o / Claude 3.5 Sonnet) in real-time, providing Prometheus metrics and interactive dashboard telemetry.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚀</div>
+        <h3 class="feature-title">Unified Multi-Provider Adapters</h3>
+        <p class="feature-desc">
+          Seamless native adapters for Ollama, vLLM, OpenAI, Anthropic Claude, and Google Gemini with connection pooling and unified token streaming.
+        </p>
+      </div>
+    </section>
+
+    <!-- Author & Footer -->
+    <footer>
+      <div class="author-bio">
+        <div class="author-avatar">MA</div>
+        <div>
+          <div style="font-weight: 700; color: #fff;">Malik Abualzait</div>
+          <div style="font-size: 13px;">AI Systems Architect & Lead Infrastructure Engineer</div>
+        </div>
+      </div>
+      <div>
+        Released under the <strong>Apache 2.0 License</strong>. Built with FastAPI, Pydantic v2, Docker & Ollama.
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const presets = {
+      extract: "Extract the json fields name, age, city from this profile text.",
+      aws: "Deploy this database instance. AWS secret key: AKIAIOSFODNN7EXAMPLE",
+      code: "Write a FastAPI route with Pydantic request validation and error handling.",
+      consensus: "Design a distributed consensus protocol fault-tolerant against Byzantine failures. Formally verify deadlock-free guarantees."
+    };
+
+    function setPreset(type) {
+      document.getElementById('sim-prompt').value = presets[type];
+      runSim();
+    }
+
+    function runSim() {
+      const text = document.getElementById('sim-prompt').value.trim();
+      if (!text) return;
+
+      const piiPatterns = [
+        /AKIA[0-9A-Z]{16}/,
+        /ghp_[A-Za-z0-9_]{36}/,
+        /-----BEGIN (?:RSA|EC|DSA|OPENSSH)? PRIVATE KEY-----/,
+        /\b\d{3}-\d{2}-\d{4}\b/,
+        /\b4[0-9]{12}(?:[0-9]{3})?\b/
+      ];
+
+      const hasPII = piiPatterns.some(p => p.test(text));
+
+      let tier = "tier_1";
+      let engine = "Local SLM (Ollama llama3.2:1b)";
+      let score = 0.20;
+      let explanation = "";
+
+      if (hasPII) {
+        tier = "tier_1 (STRICT LOCAL)";
+        engine = "Local SLM (Ollama / vLLM)";
+        score = 0.15;
+        explanation = "🛡️ PRIVACY FIREWALL ACTIVATED: Sensitive credentials / PII detected. Cloud cascading permanently locked.";
+      } else {
+        const t3Words = /byzantine|consensus|formal\s+verification|deadlock|cryptographic|distributed\s+systems/i;
+        const t1Words = /extract|json|summarize|classify|sentiment|format/i;
+
+        if (t3Words.test(text)) {
+          tier = "tier_3 (Frontier Cloud)";
+          engine = "Claude 3.5 Sonnet / GPT-4o";
+          score = 0.88;
+          explanation = "⚡️ High-complexity architectural logic detected. Cascading to Frontier Cloud model.";
+        } else if (text.length > 120 || /function|class|route|endpoint|refactor/i.test(text)) {
+          tier = "tier_2 (Mid Reasoner)";
+          engine = "Llama 3.1 8B / Economical Cloud";
+          score = 0.52;
+          explanation = "💡 Standard multi-turn coding query detected. Routed to mid-tier model.";
+        } else {
+          tier = "tier_1 (Edge SLM)";
+          engine = "Ollama (llama3.2:1b)";
+          score = 0.22;
+          explanation = "⚡️ Trivial/pattern-based extraction detected. Routed to zero-cost edge SLM.";
+        }
+      }
+
+      document.getElementById('res-tier').innerText = tier;
+      document.getElementById('res-tier').style.color = hasPII ? '#60a5fa' : (tier.includes('tier_3') ? '#c084fc' : (tier.includes('tier_2') ? '#60a5fa' : '#34d399'));
+      document.getElementById('res-engine').innerText = engine;
+      document.getElementById('res-privacy').innerText = hasPII ? "LOCKED LOCAL" : "CLEAN (OK)";
+      document.getElementById('res-privacy').style.color = hasPII ? '#ef4444' : '#10b981';
+      document.getElementById('res-score').innerText = score.toFixed(2);
+      document.getElementById('res-explanation').innerText = explanation;
+
+      document.getElementById('sim-result').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

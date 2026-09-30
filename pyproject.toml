@@ -10,11 +10,12 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
 authors = [
-    {name = "EdgeCascade Contributors"}
+    {name = "Malik Abualzait", email = "m.abualzait@gmail.com"}
 ]
 keywords = [
-    "llm", "slm", "router", "fallback", "ollama", "vllm", "openai",
-    "anthropic", "gemini", "cost-optimization", "privacy-preservation"
+    "Malik Abualzait", "edgecascade", "hybridedge", "llm", "slm", "router",
+    "fallback", "ollama", "vllm", "openai", "anthropic", "gemini",
+    "cost-optimization", "privacy-preservation"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
